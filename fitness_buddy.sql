@@ -7,7 +7,7 @@ CREATE TABLE users (
     email VARCHAR(100) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     membership_tier VARCHAR(20) DEFAULT 'free',
-    profile_completed TINYINT(1) DEFAULT 0 COMMENT 'Indicates whether user has completed their profile',
+    profile_completed TINYINT(1) DEFAULT 0 COMMENT 'Indicates whether user has completed their profile'
 );
 
 CREATE TABLE posts (
@@ -43,4 +43,24 @@ CREATE TABLE user_profiles (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     profile_picture VARCHAR(255) DEFAULT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Jag~ Payment Table
+CREATE TABLE payment_information (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    cardholder_name VARCHAR(255) NOT NULL,
+    card_number_last_four CHAR(4) NOT NULL,
+    card_type VARCHAR(50) NOT NULL,
+    expiration_date CHAR(7) NOT NULL,
+    cvc_verified BOOLEAN DEFAULT 0,
+    billing_address VARCHAR(255) NOT NULL,
+    country VARCHAR(100) NOT NULL,
+    province VARCHAR(100) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    postal_code VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX (user_id)
 );
