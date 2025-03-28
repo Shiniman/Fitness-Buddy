@@ -48,7 +48,7 @@ $user_id = $_SESSION['user_id'] ?? null;
                         <a class="nav-link" href="#">Matches</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Forum</a>
+                        <a class="nav-link" href="forum.php">Forum</a>
                     </li>
                 </ul>
                 <form class="d-flex" role="search">
@@ -72,6 +72,20 @@ $user_id = $_SESSION['user_id'] ?? null;
                 </form>
             </div>
         <?php endif; ?>
+        <!-- Success and Failure of Deletion ~ Jag -->
+        <?php if (isset($_GET['deleted']) && $_GET['deleted'] == 1): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                Post deleted successfully.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+        <?php if (isset($_GET['error']) && $_GET['error'] == 1): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                An error occurred while deleting the post.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+        <!-- ~ Jag Done -->
         <!-- Display posts or message if no posts -->
         <div id="posts-container">
             <?php if (empty($posts)): ?>

@@ -70,7 +70,7 @@
                         <a class="nav-link" href="#">Matches</a> <!-- You need to replace the # when work on matches -->
                     </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Forum</a> <!-- You need to replace the # when work on matches -->
+                            <a class="nav-link" href="forum.php">Forum</a> <!-- You need to replace the # when work on matches -->
                     </li>
                 </ul>
                 <form class="d-flex" role="search">
