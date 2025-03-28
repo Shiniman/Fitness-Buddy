@@ -144,18 +144,6 @@
             <p><?= nl2br(htmlspecialchars($post['content'])) ?></p>
         </div>
 
-        <!-- Comment Section -->
-        <?php
-        /*
-        $commentStmt = $conn->prepare("
-                   SELECT comments.*, users.username
-                   FROM comments
-                   JOIN users ON comments.user_id = users.id
-                   WHERE comments.post_id = :post_id
-                   ORDER BY comments.created_at ASC
-        ");*/
-        ?>
-
         <div class="action-buttons">
             <a href="forum.php" class="btn btn-back">Back to Forum</a>
 
