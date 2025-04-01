@@ -9,8 +9,9 @@ Else returns an error message
 3) index.php - Edit: user post deletion success/failure messages
 - if post is deleted the url will have posts.php?deleted=1 in it. If this is the case push a success message. If the url contains posts.php?error=1 then post a failure message
 
-4) fitness_buddy.sql - Edit: payment table created
-- this table stores user payment information
+4) fitness_buddy.sql - Edit: created 2 tables
+- Payment Table: this table stores user payment information
+- Match Request Table: holds records on match requests and uses them to allow users to request, accept, and deny requests. Also sets a pending state for a request
 
 5) profileSetup.php - Edit: Added payment processing
 - Line 104: Checks if user selected the premium membership option
