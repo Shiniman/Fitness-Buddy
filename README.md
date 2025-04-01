@@ -37,6 +37,27 @@ Else returns an error message
 9) forum.php - Edit: renamed, and added success and failure messages for deletion
 - Like above if the url contains deleted=1 we post a success message. Else we post a fail message
 
+10) matches.php
+- added a match_request table
+- uses a complicated sql statement which
+  - L23-L36: collects user information and profile details from the users table and user_profiles table
+  - L37-L43: uses the if statements (CASE) in SQL to see if the profile details match and gives a score which adds together to potentially total 100
+  - L37-L43: This score is saved as a variable which is used to show the user how "compatible" the user is
+  - Inner Join used between users and user_profiles
+  - Left Join used to obtain more information on match requests
+  - L52: Excludes the current user, a user you've sent a match request to, or the user who sent you a match request from the list of available users you can send requests to. Basically, you can't send a request to someone who you're already matched with or having a pending match request with.
+  - L56: note: 'remove AND (mr.status = 'pending' OR mr.status = 'accepted')' to prevent rejected users from being listed. This exists for testing purposes
+- L64-85: just extracts data and binds it to php variables
+- L87-97: retreives the requests the user sent - displayed in html
+- L103-112: retreives the requests the user received - displayed in html
+- L117-139: formats the data like myProfile.php
+- 141-173: Checks if a request exists and if it doesn't inserts a pending status match request row
+- 175-229: Original code is commented out
+  - Commented Original Code: Sets status based on if it was accepted or declined
+  - New Code: If accepted changes status to accept. If denied straight up deletes it so we can test the matching feature with 2 users only.
+
+
+
 Fitness Buddy
 Fitness Buddy is a web application designed to help users stay connected and motivated on their fitness journey. The app features a user-friendly interface to create posts, interact with others, track fitness goals, and connect with fellow fitness enthusiasts. The app has a simple, Reddit-like interface for sharing fitness tips, progress, and motivation.
 
