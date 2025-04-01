@@ -67,7 +67,7 @@
                         <a class="nav-link" href="myProfile.php">Profile</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Matches</a> <!-- You need to replace the # when work on matches -->
+                        <a class="nav-link" href="matches.php">Matches</a> <!-- You need to replace the # when work on matches -->
                     </li>
                         <li class="nav-item">
                             <a class="nav-link" href="forum.php">Forum</a> <!-- You need to replace the # when work on matches -->

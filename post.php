@@ -104,7 +104,7 @@
                         <a class="nav-link" href="myProfile.php">Profile</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Matches</a>
+                        <a class="nav-link" href="matches.php">Matches</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="forum.php">Forum</a>
@@ -143,6 +143,18 @@
         <div class="post-content">
             <p><?= nl2br(htmlspecialchars($post['content'])) ?></p>
         </div>
+
+        <!-- Comment Section -->
+        <?php
+        /*
+        $commentStmt = $conn->prepare("
+                   SELECT comments.*, users.username
+                   FROM comments
+                   JOIN users ON comments.user_id = users.id
+                   WHERE comments.post_id = :post_id
+                   ORDER BY comments.created_at ASC
+        ");*/
+        ?>
 
         <div class="action-buttons">
             <a href="forum.php" class="btn btn-back">Back to Forum</a>

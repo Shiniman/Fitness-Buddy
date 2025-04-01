@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <a class="nav-link" href="myProfile.php">Profile</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Matches</a>
+                        <a class="nav-link" href="matches.php">Matches</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="forum.php">Forum</a>

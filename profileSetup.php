@@ -214,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <a class="nav-link active" href="myProfile.php">Profile</a> <!-- Jag~ Changed link from profileSetup.php to myProfile.php-->
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Matches</a>
+                        <a class="nav-link" href="matches.php">Matches</a> <!-- Jag~ Updated link -->
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="forum.php">Forum</a>
