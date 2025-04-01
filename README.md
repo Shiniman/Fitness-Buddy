@@ -38,6 +38,7 @@ Else returns an error message
 - Like above if the url contains deleted=1 we post a success message. Else we post a fail message
 
 10) matches.php
+- Updated the Nav bar of all pages to properly redirect to matches.php
 - added a match_request table
 - uses a complicated sql statement which
   - L23-L36: collects user information and profile details from the users table and user_profiles table
@@ -55,7 +56,6 @@ Else returns an error message
 - 175-229: Original code is commented out
   - Commented Original Code: Sets status based on if it was accepted or declined
   - New Code: If accepted changes status to accept. If denied straight up deletes it so we can test the matching feature with 2 users only.
-
 
 
 Fitness Buddy
