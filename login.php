@@ -3,7 +3,12 @@ session_start();
 require 'db.php';
 
 if (isset($_SESSION["user_id"])) {
-    header("Location: index.php");
+    // Redirects based on account type ~Hag
+    if(isset($_SESSION["is_admin"]) && $_SESSION["is_admin"] === true) {
+        header("Location: admin_dashboard.php");
+    } else {
+        header("Location: index.php");
+    }
     exit();
 }
 ?>
@@ -53,7 +58,7 @@ if (isset($_SESSION["user_id"])) {
                 const messageBox = document.getElementById("loginMessage");
                 if (data.success) {
                     messageBox.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
-                    setTimeout(() => window.location.href = "index.php", 2000); // Redirect after 2 seconds
+                    setTimeout(() => window.location.href = data.redirect || "index.php", 2000); // Redirect after 2 seconds
                 } else {
                     messageBox.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
                 }

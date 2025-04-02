@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     // Check if the user exists in the database
-    $stmt = $conn->prepare("SELECT id, password_hash FROM users WHERE email = :email LIMIT 1");
+    $stmt = $conn->prepare("SELECT id, password_hash, is_admin FROM users WHERE email = :email LIMIT 1");
     $stmt->bindParam(':email', $email, PDO::PARAM_STR);
     $stmt->execute();
 
@@ -52,8 +52,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Start the session and store the user ID
     $_SESSION["user_id"] = $user['id'];
 
+    // Check if the user is an admin ~Jag
+    if (isset($user['is_admin']) && $user['is_admin'] == 1) {
+        $_SESSION["is_admin"] = true;
+        echo json_encode([
+            "success" => true,
+            "message" => "Admin login successful. Redirecting to admin dashboard...",
+            "redirect" => "admin_dashboard.php"
+        ]);
+    } else {
+        // Regular user login
+        echo json_encode([
+            "success" => true,
+            "message" => "Login successful. Redirecting...",
+            "redirect" => "index.php"
+        ]);
+    }
+/*
     // Respond with success message
-    echo json_encode(["success" => true, "message" => "Login successful. Redirecting..."]);
+    echo json_encode(["success" => true, "message" => "Login successful. Redirecting..."]);*/
 } else {
     echo json_encode(["success" => false, "message" => "Invalid request method."]);
 }

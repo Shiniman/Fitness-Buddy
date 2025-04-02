@@ -16,6 +16,19 @@
     exit();
 ?>
 
+<?php
+    // admin_logout.php
+    session_start();
+
+    // Clear admin session variables
+    unset($_SESSION['admin_id']);
+    unset($_SESSION['is_admin']);
+
+    // Redirect to login
+    header("Location: login.php");
+    exit();
+?>
+
 <!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">

@@ -16,7 +16,7 @@ $stmt->execute();
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Check if profile exists for this user
-$profileStmt = $conn->prepare("SELECT * FROM user_profiles WHERE user_id = :user_id");
+$profileStmt = $conn->prepare("SELECT * FROM profile WHERE user_id = :user_id");
 $profileStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
 $profileStmt->execute();
 $profile = $profileStmt->fetch(PDO::FETCH_ASSOC);
@@ -29,7 +29,7 @@ $paymentInfo = $paymentStmt->fetch(PDO::FETCH_ASSOC);
 
 // create a profile record if it doesn't exist
 if (!$profile) {
-    $createProfileStmt = $conn->prepare("INSERT INTO user_profiles (user_id) VALUES (:user_id)");
+    $createProfileStmt = $conn->prepare("INSERT INTO profile (user_id) VALUES (:user_id)");
     $createProfileStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
     $createProfileStmt->execute();
 }
@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!empty($updateFields)) {
-        $query = "UPDATE user_profiles SET " . implode(', ', $updateFields) . " WHERE user_id = :user_id";
+        $query = "UPDATE profile SET " . implode(', ', $updateFields) . " WHERE user_id = :user_id";
         $updateStmt = $conn->prepare($query);
         $updateStmt->execute($params);
     }
@@ -103,22 +103,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Jag~ Payment Processing if premium is selected
     if (isset($_POST['membership_tier']) && $_POST['membership_tier'] === 'premium') {
         // Validate payment information
-        if (empty($_POST['cardholderName']) || empty($_POST['cardNumber']) || 
-            empty($_POST['expirationDate']) || empty($_POST['cvv']) || 
+        if (
+            empty($_POST['cardholderName']) || empty($_POST['cardNumber']) ||
+            empty($_POST['expirationDate']) || empty($_POST['cvv']) ||
             empty($_POST['billingAddress']) || empty($_POST['country']) ||
-            empty($_POST['province']) || empty($_POST['city']) || 
-            empty($_POST['postalCode'])) {
-            
+            empty($_POST['province']) || empty($_POST['city']) ||
+            empty($_POST['postalCode'])
+        ) {
+
             // Store error message in session and redirect back
             $_SESSION['payment_error'] = "Please fill out all payment information fields.";
             header("Location: profileSetup.php");
             exit();
         }
-        
+
         // Process card information
         $cardNumber = $_POST['cardNumber'];
         $cardLastFour = substr($cardNumber, -4); // Store only last 4 digits
-        
+
         // Determine card type based on first digit
         $cardType = "Unknown";
         $firstDigit = substr($cardNumber, 0, 1);
@@ -131,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($firstDigit == '6') {
             $cardType = "Discover";
         }
-        
+
         // Check if payment information already exists
         if ($paymentInfo) {
             // Update existing payment information
@@ -159,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 :expiration_date, 1, :billing_address, :country, 
                 :province, :city, :postal_code)";
         }
-        
+
         // Execute payment query
         $paymentStmt = $conn->prepare($paymentQuery);
         $paymentStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
@@ -200,6 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
+    <!-- Nav Bar Starts -->
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: salmon;">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold" href="index.php">Fitness Buddy</a>
@@ -209,24 +212,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <!-- Left navigation items -->
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" href="myProfile.php">Profile</a> <!-- Jag~ Changed link from profileSetup.php to myProfile.php-->
+                        <a class="nav-link" href="myProfile.php">Profile</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="matches.php">Matches</a> <!-- Jag~ Updated link -->
+                        <a class="nav-link" href="matches.php">Matches</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="send_message.php">Message</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="forum.php">Forum</a>
                     </li>
                 </ul>
-                <form class="d-flex" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-light" type="submit">Search</button>
-                </form>
+
+                <!-- Right-aligned logout -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a href="logout.php" class="btn btn-outline-light">Logout</a>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
+    <!-- Nav Bar Ends Here -->
 
     <div class="form-container">
         <form action="" method="POST" enctype="multipart/form-data">
@@ -287,10 +298,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             id="intermediate">
                         <label class="form-check-label" for="intermediate">Intermediate</label>
                     </div>
-                    <div class="form-check">
+                    <div class="form-check me-4">
                         <input class="form-check-input" type="radio" name="experience_level" value="advanced"
                             id="advanced">
                         <label class="form-check-label" for="advanced">Advanced</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="experience_level" value="trainer"
+                            id="trainer">
+                        <label class="form-check-label" for="trainer">Trainer</label>
                     </div>
                 </div>
             </div>
@@ -365,7 +381,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label class="form-check-label" for="share_yes">Yes</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="share_location" id="share_no" value="0" checked>
+                            <input class="form-check-input" type="radio" name="share_location" id="share_no" value="0"
+                                checked>
                             <label class="form-check-label" for="share_no">No</label>
                         </div>
                     </div>
@@ -435,25 +452,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <!-- Display error message if any -->
                 <?php if (isset($_SESSION['payment_error'])): ?>
                     <div class="alert alert-danger">
-                        <?php echo $_SESSION['payment_error']; unset($_SESSION['payment_error']); ?>
+                        <?php echo $_SESSION['payment_error'];
+                        unset($_SESSION['payment_error']); ?>
                     </div>
                 <?php endif; ?>
-    
+
                 <div class="mb-3">
                     <label for="cardholderName" class="form-label">Cardholder Name*</label>
-                    <input type="text" class="form-control" name="cardholderName" id="cardholderName" value="<?php echo isset($paymentInfo['cardholder_name']) ? htmlspecialchars($paymentInfo['cardholder_name']) : ''; ?>">
+                    <input type="text" class="form-control" name="cardholderName" id="cardholderName"
+                        value="<?php echo isset($paymentInfo['cardholder_name']) ? htmlspecialchars($paymentInfo['cardholder_name']) : ''; ?>">
                 </div>
-    
+
                 <div class="mb-3">
                     <label for="cardNumber" class="form-label">Card Number (13-16)*</label>
-                    <input type="text" class="form-control" name="cardNumber" id="cardNumber" maxlength="16" placeholder="<?php echo isset($paymentInfo['card_number_last_four']) ? '************' . htmlspecialchars($paymentInfo['card_number_last_four']) : ''; ?>">
+                    <input type="text" class="form-control" name="cardNumber" id="cardNumber" maxlength="16"
+                        placeholder="<?php echo isset($paymentInfo['card_number_last_four']) ? '************' . htmlspecialchars($paymentInfo['card_number_last_four']) : ''; ?>">
                     <small class="text-muted">Your card information is securely stored</small>
                 </div>
-    
+
                 <div class="row mb-3">
                     <div class="col">
                         <label for="expirationDate" class="form-label">Expiration Date (MM/YYYY)*</label>
-                        <input type="text" class="form-control" name="expirationDate" id="expirationDate" placeholder="MM/YYYY" value="<?php echo isset($paymentInfo['expiration_date']) ? htmlspecialchars($paymentInfo['expiration_date']) : ''; ?>">
+                        <input type="text" class="form-control" name="expirationDate" id="expirationDate"
+                            placeholder="MM/YYYY"
+                            value="<?php echo isset($paymentInfo['expiration_date']) ? htmlspecialchars($paymentInfo['expiration_date']) : ''; ?>">
                     </div>
                     <div class="col">
                         <label for="cvv" class="form-label">CVV/CVC (3-4)*</label>
@@ -461,44 +483,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <small class="text-muted">3 or 4 digits on the back of your card</small>
                     </div>
                 </div>
-    
+
                 <div class="mb-3">
                     <label for="billingAddress" class="form-label">Billing Address*</label>
-                    <input type="text" class="form-control" name="billingAddress" id="billingAddress" value="<?php echo isset($paymentInfo['billing_address']) ? htmlspecialchars($paymentInfo['billing_address']) : ''; ?>">
+                    <input type="text" class="form-control" name="billingAddress" id="billingAddress"
+                        value="<?php echo isset($paymentInfo['billing_address']) ? htmlspecialchars($paymentInfo['billing_address']) : ''; ?>">
                 </div>
-    
+
                 <div class="row mb-3">
                     <div class="col">
                         <label for="country" class="form-label">Country*</label>
-                        <input type="text" class="form-control" name="country" id="country" value="<?php echo isset($paymentInfo['country']) ? htmlspecialchars($paymentInfo['country']) : ''; ?>">
+                        <input type="text" class="form-control" name="country" id="country"
+                            value="<?php echo isset($paymentInfo['country']) ? htmlspecialchars($paymentInfo['country']) : ''; ?>">
                     </div>
                     <div class="col">
                         <label for="province" class="form-label">Province/State*</label>
-                        <input type="text" class="form-control" name="province" id="province" value="<?php echo isset($paymentInfo['province']) ? htmlspecialchars($paymentInfo['province']) : ''; ?>">
+                        <input type="text" class="form-control" name="province" id="province"
+                            value="<?php echo isset($paymentInfo['province']) ? htmlspecialchars($paymentInfo['province']) : ''; ?>">
                     </div>
                 </div>
-    
+
                 <div class="row mb-3">
                     <div class="col">
                         <label for="city" class="form-label">City*</label>
-                        <input type="text" class="form-control" name="city" id="city" value="<?php echo isset($paymentInfo['city']) ? htmlspecialchars($paymentInfo['city']) : ''; ?>">
+                        <input type="text" class="form-control" name="city" id="city"
+                            value="<?php echo isset($paymentInfo['city']) ? htmlspecialchars($paymentInfo['city']) : ''; ?>">
                     </div>
                     <div class="col">
                         <label for="postalCode" class="form-label">Postal/ZIP Code*</label>
-                        <input type="text" class="form-control" name="postalCode" id="postalCode" value="<?php echo isset($paymentInfo['postal_code']) ? htmlspecialchars($paymentInfo['postal_code']) : ''; ?>">
+                        <input type="text" class="form-control" name="postalCode" id="postalCode"
+                            value="<?php echo isset($paymentInfo['postal_code']) ? htmlspecialchars($paymentInfo['postal_code']) : ''; ?>">
                     </div>
                 </div>
-    
+
                 <div class="alert alert-info">
                     <small>
-                        <i class="bi bi-info-circle"></i> Your payment information is securely stored. We only save the last 4 digits of your card number.
+                        <i class="bi bi-info-circle"></i> Your payment information is securely stored. We only save the
+                        last 4 digits of your card number.
                     </small>
                 </div>
             </div>
             <!-- Jag~ Done -->
 
             <div class="action-buttons">
-                <a href="myProfile.php" class="btn btn-cancel">Cancel</a> <!-- Jag~ changed index.php link to myProfile.php-->
+                <a href="myProfile.php" class="btn btn-cancel">Cancel</a>
+                <!-- Jag~ changed index.php link to myProfile.php-->
                 <button type="submit" class="btn btn-save">Save</button>
             </div>
         </form>
@@ -555,109 +584,109 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Jag~ Payment
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Get form elements
             const profileForm = document.querySelector('form');
             const premiumTier = document.getElementById('premium_tier');
             const freeTier = document.getElementById('free_tier');
             const paymentSection = document.getElementById('paymentSection');
-    
+
             // Initialize payment section visibility
             if (premiumTier.checked) {
                 paymentSection.style.display = 'block';
             } else {
                 paymentSection.style.display = 'none';
             }
-    
+
             // Toggle payment section visibility when membership tier changes
-            premiumTier.addEventListener('change', function() {
+            premiumTier.addEventListener('change', function () {
                 if (this.checked) {
                     paymentSection.style.display = 'block';
                 }
             });
-    
-            freeTier.addEventListener('change', function() {
+
+            freeTier.addEventListener('change', function () {
                 if (this.checked) {
-                paymentSection.style.display = 'none';
+                    paymentSection.style.display = 'none';
                 }
             });
-    
+
             // Format expiration date input
             const expirationDateInput = document.getElementById('expirationDate');
-            expirationDateInput.addEventListener('input', function(e) {
+            expirationDateInput.addEventListener('input', function (e) {
                 let value = e.target.value.replace(/\D/g, '');
                 if (value.length > 2) {
-                value = value.slice(0, 2) + '/' + value.slice(2, 6);
+                    value = value.slice(0, 2) + '/' + value.slice(2, 6);
                 }
                 e.target.value = value;
             });
-    
+
             // Format card number with spaces
             const cardNumberInput = document.getElementById('cardNumber');
-                cardNumberInput.addEventListener('input', function(e) {
+            cardNumberInput.addEventListener('input', function (e) {
                 let value = e.target.value.replace(/\D/g, '');
                 e.target.value = value;
             });
-    
+
             // Validate form before submission
-            profileForm.addEventListener('submit', function(event) {
-            // Only validate payment info if premium tier is selected
-            if (premiumTier.checked) {
-            const cardholderName = document.getElementById('cardholderName').value.trim();
-            const cardNumber = document.getElementById('cardNumber').value.trim();
-            const expirationDate = document.getElementById('expirationDate').value.trim();
-            const cvv = document.getElementById('cvv').value.trim();
-            const billingAddress = document.getElementById('billingAddress').value.trim();
-            const country = document.getElementById('country').value.trim();
-            const province = document.getElementById('province').value.trim();
-            const city = document.getElementById('city').value.trim();
-            const postalCode = document.getElementById('postalCode').value.trim();
-            
-            // Basic validation
-            if (!cardholderName) {
-            alert('Please enter the cardholder name.');
-            event.preventDefault();
-            return;
-            }
-            
-            if (!cardNumber || cardNumber.length < 13 || cardNumber.length > 16) {
-            alert('Please enter a valid card number (13-16 digits).');
-            event.preventDefault();
-            return;
-            }
-            
-            // Validate expiration date format (MM/YYYY)
-            const expiryRegex = /^(0[1-9]|1[0-2])\/20[2-9][0-9]$/;
-            if (!expirationDate || !expiryRegex.test(expirationDate)) {
-            alert('Please enter a valid expiration date in MM/YYYY format.');
-            event.preventDefault();
-            return;
-            }
-            
-            // Validate expiration date is in the future
-            const [month, year] = expirationDate.split('/');
-            const expiryDate = new Date(year, month - 1);
-            const currentDate = new Date();
-            if (expiryDate <= currentDate) {
-            alert('The card expiration date must be in the future.');
-            event.preventDefault();
-            return;
-            }
-            
-            // Validate CVV
-            if (!cvv || cvv.length < 3 || cvv.length > 4) {
-            alert('Please enter a valid CVV/CVC (3-4 digits).');
-            event.preventDefault();
-            return;
-            }
-            
-            // Validate address fields
-            if (!billingAddress || !country || !province || !city || !postalCode) {
-                alert('Please fill in all address fields.');
-                    event.preventDefault();
-                    return;
+            profileForm.addEventListener('submit', function (event) {
+                // Only validate payment info if premium tier is selected
+                if (premiumTier.checked) {
+                    const cardholderName = document.getElementById('cardholderName').value.trim();
+                    const cardNumber = document.getElementById('cardNumber').value.trim();
+                    const expirationDate = document.getElementById('expirationDate').value.trim();
+                    const cvv = document.getElementById('cvv').value.trim();
+                    const billingAddress = document.getElementById('billingAddress').value.trim();
+                    const country = document.getElementById('country').value.trim();
+                    const province = document.getElementById('province').value.trim();
+                    const city = document.getElementById('city').value.trim();
+                    const postalCode = document.getElementById('postalCode').value.trim();
+
+                    // Basic validation
+                    if (!cardholderName) {
+                        alert('Please enter the cardholder name.');
+                        event.preventDefault();
+                        return;
+                    }
+
+                    if (!cardNumber || cardNumber.length < 13 || cardNumber.length > 16) {
+                        alert('Please enter a valid card number (13-16 digits).');
+                        event.preventDefault();
+                        return;
+                    }
+
+                    // Validate expiration date format (MM/YYYY)
+                    const expiryRegex = /^(0[1-9]|1[0-2])\/20[2-9][0-9]$/;
+                    if (!expirationDate || !expiryRegex.test(expirationDate)) {
+                        alert('Please enter a valid expiration date in MM/YYYY format.');
+                        event.preventDefault();
+                        return;
+                    }
+
+                    // Validate expiration date is in the future
+                    const [month, year] = expirationDate.split('/');
+                    const expiryDate = new Date(year, month - 1);
+                    const currentDate = new Date();
+                    if (expiryDate <= currentDate) {
+                        alert('The card expiration date must be in the future.');
+                        event.preventDefault();
+                        return;
+                    }
+
+                    // Validate CVV
+                    if (!cvv || cvv.length < 3 || cvv.length > 4) {
+                        alert('Please enter a valid CVV/CVC (3-4 digits).');
+                        event.preventDefault();
+                        return;
+                    }
+
+                    // Validate address fields
+                    if (!billingAddress || !country || !province || !city || !postalCode) {
+                        alert('Please fill in all address fields.');
+                        event.preventDefault();
+                        return;
+                    }
                 }
-            }
             });
         });
         // Jag~ End

@@ -7,7 +7,8 @@ CREATE TABLE users (
     email VARCHAR(100) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     membership_tier VARCHAR(20) DEFAULT 'free',
-    profile_completed TINYINT(1) DEFAULT 0 COMMENT 'Indicates whether user has completed their profile'
+    profile_completed TINYINT(1) DEFAULT 0 COMMENT 'Indicates whether user has completed their profile',
+    is_admin TINYINT(1) DEFAULT 0 COMMENT 'Indicates whether user is an admin or not'
 );
 
 CREATE TABLE posts (
@@ -28,7 +29,7 @@ CREATE TABLE messages (
     FOREIGN KEY (receiver_id) REFERENCES users(id)
 );
 
-CREATE TABLE user_profiles (
+CREATE TABLE profile (
     id INT(11) AUTO_INCREMENT PRIMARY KEY,
     user_id INT(11) NOT NULL,
     fitness_goals VARCHAR(255) DEFAULT NULL,
@@ -45,7 +46,6 @@ CREATE TABLE user_profiles (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Jag~ Payment Table
 CREATE TABLE payment_information (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -65,7 +65,6 @@ CREATE TABLE payment_information (
     INDEX (user_id)
 );
 
--- Jag~ Match Request Table
 CREATE TABLE match_requests (
     id INT AUTO_INCREMENT PRIMARY KEY,
     sender_id INT NOT NULL,
@@ -76,4 +75,55 @@ CREATE TABLE match_requests (
     FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE,
     UNIQUE KEY unique_request (sender_id, receiver_id)
+);
+
+CREATE TABLE workout_check_ins (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    check_in_date DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    notes TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_user_date (user_id, check_in_date)
+);
+
+CREATE TABLE blocked_users (
+    blocker_id INT NOT NULL,
+    blocked_id INT NOT NULL,
+    PRIMARY KEY (blocker_id, blocked_id),
+    FOREIGN KEY (blocker_id) REFERENCES users(id),
+    FOREIGN KEY (blocked_id) REFERENCES users(id)
+);
+
+CREATE TABLE replies (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    post_id INT(11) NOT NULL,
+    user_id INT(11) NOT NULL,
+    content TEXT NOT NULL COLLATE utf8mb4_general_ci,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE reports (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    message_id INT(11) NOT NULL,
+    reporter_id INT(11) NOT NULL,
+    reason TEXT NOT NULL COLLATE utf8mb4_general_ci,
+    reported_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('pending', 'reviewed', 'dismissed') DEFAULT 'pending',
+    reviewed_by INT NULL,
+    action_taken VARCHAR(255) NULL,
+    reviewed_at TIMESTAMP NULL,
+    notes TEXT NULL
+);
+
+CREATE TABLE banned_users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    banned_by INT NOT NULL,
+    reason TEXT NOT NULL,
+    banned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ban_duration VARCHAR(50) DEFAULT 'permanent',
+    unbanned_at TIMESTAMP NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (banned_by) REFERENCES users(id)
 );
